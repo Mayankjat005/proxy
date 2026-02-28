@@ -1,32 +1,35 @@
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+// Root route (Check karne ke liye ki server chal raha hai)
+app.get('/', (req, res) => {
+    res.send('Movie Proxy API is Running! 🚀');
+});
 
 // 1. Movie Proxy Route
-// Usage: http://localhost:3000/stream/movie/550
+// Example: /stream/movie/550
 app.get('/stream/movie/:id', (req, res) => {
     const tmdbId = req.params.id;
-    if (!tmdbId) return res.status(400).send("TMDB ID is required");
+    if (!tmdbId) return res.status(400).send("TMDB ID missing");
     
     const targetUrl = `https://peachify.top/?type=movie&id=${tmdbId}`;
-    
-    // Aap yahan redirect kar sakte hain ya page render kar sakte hain
     res.redirect(targetUrl);
 });
 
 // 2. TV Series Proxy Route
-// Usage: http://localhost:3000/stream/tv/1399/1/1
+// Example: /stream/tv/1399/1/1
 app.get('/stream/tv/:id/:s/:e', (req, res) => {
     const { id, s, e } = req.params;
-    
-    if (!id || !s || !e) {
-        return res.status(400).send("ID, Season, and Episode are required");
-    }
+    if (!id || !s || !e) return res.status(400).send("Params missing");
 
     const targetUrl = `https://peachify.top/?type=tv&id=${id}&s=${s}&e=${e}`;
     res.redirect(targetUrl);
 });
 
+// Port setting (Vercel/Render ke liye zaroori hai)
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Proxy server is running on http://localhost:${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });
+
+module.exports = app; // Vercel support ke liye
